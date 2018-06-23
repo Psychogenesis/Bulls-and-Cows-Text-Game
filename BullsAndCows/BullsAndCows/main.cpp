@@ -7,7 +7,7 @@ using int32 = int;
 
 
 void PrintIntro();
-FText GetGuess();
+FText GetValidGuess();
 void PlayGame();
 bool IsPalyngAgain();
 /*int32 PlayerTriesAmmount(int32 ammount);*/
@@ -36,11 +36,14 @@ int main()
 void PlayGame()
 {	
 	FText guess;
+	
  	BCGame.Reset(); 
+
 	int32 MaxTries = BCGame.GetMaxTries();
+
 	for (int32 i = 1; i <= MaxTries; i++)
 	{
-		guess = GetGuess();
+		guess = GetValidGuess();
 		FBullCowsCount BullCowCount = BCGame.SubmitGuess(guess);
 		std::cout << "Bulls: " << BullCowCount.Bulls;
 		std::cout << ". Cows: " << BullCowCount.Cows << std::endl;
@@ -55,9 +58,8 @@ void PlayGame()
 
 void PrintIntro()
 {
-	constexpr int32 WORLD_LENGTH = 4;
 	std::cout << "Welcome to Bulls and Cows, a fun word game." << std::endl;
-	std::cout << "Can you guess the " << WORLD_LENGTH << " letter isogram I'm thinking of?" << std::endl;
+	std::cout << "Can you guess the " << BCGame.GetHiddenWordLength() << " letter isogram I'm thinking of?" << std::endl;
 	return;
 }
 
@@ -71,13 +73,39 @@ int32 PlayerTriesAmmount()
 	return ammount;
 }
 
-FText GetGuess()
+FText GetValidGuess()
 {
-	int32 CurrentTry = BCGame.GetCurrentTry();
-	std::cout << "Try " << CurrentTry << ". Enter your guess: ";
 	FText Guess;
-	std::getline(std::cin, Guess);
-	return Guess;	
+	EGuessStatus status;
+	int32 CurrentTry = BCGame.GetCurrentTry();
+	std::cout << "Try " << CurrentTry << ". ";
+
+	do 
+	{
+		std::cout << "Enter your guess: ";
+		std::getline(std::cin, Guess);
+		status = BCGame.IsValidGuess(Guess);
+
+		switch (status)
+		{
+		case EGuessStatus::WRONG_LENGTH:
+			std::cout << "Please enter a " << BCGame.GetHiddenWordLength() << " letter word.\n";
+			break;
+		case EGuessStatus::CONTAINS_NUMBERS:
+			std::cout << "No numbers are allowed.\n";
+			break;
+		case EGuessStatus::CONTAINS_SPECIAL_SYMBOLS:
+			std::cout << "only letters are allowed.\n";
+			break;
+		case EGuessStatus::NOT_ISOGRAM:
+			std::cout << "The word must be an isogram.\n";
+			break;
+		default:
+			return Guess;
+		}
+		std::cout << std::endl;
+	} while (status != EGuessStatus::OK);
+	
 }
 
 bool IsPalyngAgain()

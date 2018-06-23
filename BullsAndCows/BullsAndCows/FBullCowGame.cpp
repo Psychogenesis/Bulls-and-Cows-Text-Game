@@ -1,42 +1,52 @@
 #include "FBullCowGame.h"
 
+//constructor
+FBullCowGame::FBullCowGame() { Reset(); }
 
 //getters
 int32 FBullCowGame::GetMaxTries() const { return mMyMaxTries; }
 int32 FBullCowGame::GetCurrentTry() const { return mMyCurrentTry; }
+int32 FBullCowGame::GetHiddenWordLength() const { return mHiddenWord.length(); }
 
 //setters
 void FBullCowGame::SetMaxTries(int32 value) { mMyMaxTries = value; }
 
-FBullCowGame::FBullCowGame() { Reset(); }
-
-
 void FBullCowGame::Reset()
 {
 	constexpr int32 MAX_TRIES = 5;
+	const FString HIDDEN_WORD = "earth";
+
 	mMyMaxTries = MAX_TRIES;
-
-	const FString HIDDEN_WORD = "dupa";
 	mHiddenWord = HIDDEN_WORD;
-
 	mMyCurrentTry = 1;
+
 	return;
 } 
 
 bool FBullCowGame::IsGameWon(FString word) const { return (word == mHiddenWord); }
+bool FBullCowGame::IsContainsDigits(FString guess) const { return (guess.begin(), guess.end(), ::isdigit); }
+
+bool FBullCowGame::IsContainsSpecialChars(FString word) const
+{
+	return ((word.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")) != FString::npos);
+}
 
 void FBullCowGame::SetNewWord()
 {
 }
 
-bool FBullCowGame::IsValidGuess(FString word)
+EGuessStatus FBullCowGame::IsValidGuess(FString word) const //TODO Make actual method
 {
-	return false;
-}
-
-bool FBullCowGame::IsIsogram()
-{
-	return false;
+	if (word.length() != GetHiddenWordLength())
+		return EGuessStatus::WRONG_LENGTH;
+	else if (!IsIsogram(word))
+		return EGuessStatus::NOT_ISOGRAM;
+	else if (IsContainsDigits(word))
+		return EGuessStatus::CONTAINS_NUMBERS;
+	else if (IsContainsSpecialChars(word))
+		return EGuessStatus::CONTAINS_SPECIAL_SYMBOLS;
+	else
+		return EGuessStatus::OK;
 }
 
 FBullCowsCount FBullCowGame::SubmitGuess(FString guess)
@@ -58,6 +68,20 @@ FBullCowsCount FBullCowGame::SubmitGuess(FString guess)
 			}			
 		}
 	}
-
 	return BullCowCount;
 }
+
+bool FBullCowGame::IsIsogram(FString word) const
+{
+	for (int32 i = 0; i < word.length(); i++)
+	{
+		for (int32 j = i + 1; j <= word.length(); j++)
+		{
+			if (word[i] == word[j])
+				return false;
+		}
+	}
+	return true;
+}
+
+
