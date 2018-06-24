@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <vector>
 #include "FBullCowGame.h"
 
 using FText = std::string;
@@ -13,6 +14,7 @@ bool IsPalyngAgain();
 /*int32 PlayerTriesAmmount(int32 ammount);*/
 
 FBullCowGame BCGame;
+std::vector <FString> GuessArray;
 
 // the entry point for our application
 int main()
@@ -40,10 +42,13 @@ void PlayGame()
  	BCGame.Reset(); 
 
 	int32 MaxTries = BCGame.GetMaxTries();
+	
+
 
 	for (int32 i = 1; i <= MaxTries; i++)
 	{
 		guess = GetValidGuess();
+
 		FBullCowsCount BullCowCount = BCGame.SubmitGuess(guess);
 		std::cout << "Bulls: " << BullCowCount.Bulls;
 		std::cout << ". Cows: " << BullCowCount.Cows << std::endl;
@@ -83,22 +88,26 @@ FText GetValidGuess()
 	do 
 	{
 		std::cout << "Enter your guess: ";
-		std::getline(std::cin, Guess);
-		status = BCGame.IsValidGuess(Guess);
+		std::getline(std::cin, Guess);		
+		status = BCGame.IsValidGuess(Guess, GuessArray);
+		GuessArray.push_back(Guess);
 
 		switch (status)
 		{
 		case EGuessStatus::WRONG_LENGTH:
 			std::cout << "Please enter a " << BCGame.GetHiddenWordLength() << " letter word.\n";
 			break;
-		case EGuessStatus::CONTAINS_NUMBERS:
-			std::cout << "No numbers are allowed.\n";
-			break;
-		case EGuessStatus::CONTAINS_SPECIAL_SYMBOLS:
-			std::cout << "only letters are allowed.\n";
+		case EGuessStatus::NOT_A_WORD:
+			std::cout << "This is not a word.\n";
 			break;
 		case EGuessStatus::NOT_ISOGRAM:
 			std::cout << "The word must be an isogram.\n";
+			break;
+		case EGuessStatus::MORE_THAN_1_WORD:
+			std::cout << "There must be only 1 word.\n";
+			break;
+		case EGuessStatus::ALREADY_TRIED:
+			std::cout << "You've already tried this word. Put something different.\n";
 			break;
 		default:
 			return Guess;

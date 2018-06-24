@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <vector>
 
 using FString = std::string;
 using int32 = int;
@@ -14,10 +15,9 @@ enum class EGuessStatus
 {
 	OK,
 	NOT_ISOGRAM,
-	ALLREADY_TRIED,
+	ALREADY_TRIED,
 	WRONG_LENGTH,
-	CONTAINS_NUMBERS,
-	CONTAINS_SPECIAL_SYMBOLS,
+	NOT_A_WORD,
 	MORE_THAN_1_WORD,
 	INVALID
 };
@@ -31,7 +31,7 @@ public:
 	int32 GetCurrentTry() const;
 	int32 GetHiddenWordLength() const;
 	bool IsGameWon(FString) const;
-	EGuessStatus IsValidGuess(FString) const;
+	EGuessStatus IsValidGuess(FString, std::vector <FString>) const;
 
 	void SetMaxTries(int32);
 	void Reset();
@@ -42,7 +42,8 @@ public:
 private:
 	int32 mMyCurrentTry, mMyMaxTries;
 	FString mHiddenWord; 
-	bool IsIsogram(FString) const;
-	bool IsContainsDigits(FString) const;
-	bool IsContainsSpecialChars(FString) const;
+	bool IsNotIsogram(FString) const;
+	bool IsNotAWord(FString) const;
+	bool IsNot1Word(FString) const;
+	bool IsAlreadyTried(FString, std::vector <FString>) const;
 };
